@@ -33,7 +33,6 @@ def process_transcript(feature: str, features: Dict, position_lookups: Dict):
     step_modifier = 1
     cds_order_mod = (0, 1)
 
-    # creative mathematical way to map 1 to (0,1) and -1 to (1, 0) ?
     if strand == "-":
         step_modifier = -1
         cds_order_mod = (1, 0)
@@ -67,12 +66,10 @@ def parse_gtf(gtf_fp: Path, features_of_interest: Set) -> Dict:
             gene_id = info[0].split()[-1].strip('"')
             transcript_id = info[1].split()[-1].strip('"')
 
-            # forward_condition = (gene_id in features_of_interest and feature_type == "genes") #or
-            # (transcript_id in features_of_interest and feature_type == "transcripts"))
 
             if (
                 gene_id in features_of_interest or transcript_id in features_of_interest
-            ):  # forward_condition:
+            ):  
                 chromosome = line[0]
 
                 if line[2] in ["CDS", "transcript", "3UTR"]:
@@ -133,14 +130,6 @@ def main():
     output_fp = Path(sys.argv[3])
 
     genes_of_interest, positions = load_genes_positions(genes_positions_fp)
-    # leaving for later, probably want to do something fun here
-    #    raw_input = []
-
-    #    for line in sys.stdin:
-    #        raw_input.append(line.strip())
-
-    #    genes_of_interest, positions = zip(*[it.split() for it in raw_input])
-    # genes_of_interest = set(["KRAS", "TP53"])
 
     start = time.perf_counter()
 

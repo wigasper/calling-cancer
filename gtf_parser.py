@@ -7,7 +7,7 @@ from typing import Set, Tuple, List, Dict
 
 
 # Processes a transcript using the features extracted from the GTF
-# Creates a lookup table for genomic positions corresponding to 
+# Creates a lookup table for genomic positions corresponding to
 # every residue in the coding sequence
 # Modifies position_lookups in place (borrow here)
 def process_transcript(feature: str, features: Dict, position_lookups: Dict):
@@ -32,20 +32,21 @@ def process_transcript(feature: str, features: Dict, position_lookups: Dict):
     # on
     step_modifier = 1
     cds_order_mod = (0, 1)
-    
-    # creative mathematical way to map 1 to (0,1) and -1 to (1, 0) ? 
+
+    # creative mathematical way to map 1 to (0,1) and -1 to (1, 0) ?
     if strand == "-":
         step_modifier = -1
         cds_order_mod = (1, 0)
 
     idx = 0
     for cds in features[feature]["cds"][::step_modifier]:
-        for base_pos in range(cds[cds_order_mod[0]], cds[cds_order_mod[1]] + step_modifier, step_modifier):
+        for base_pos in range(
+            cds[cds_order_mod[0]], cds[cds_order_mod[1]] + step_modifier, step_modifier
+        ):
             residue_posit = (idx // 3) + 1
             if (
                 residue_posit in position_lookups[gene]
-                and (chromosome, base_pos)
-                not in position_lookups[gene][residue_posit]
+                and (chromosome, base_pos) not in position_lookups[gene][residue_posit]
             ):
                 position_lookups[gene][residue_posit].append((chromosome, base_pos))
             else:
@@ -58,18 +59,20 @@ def process_transcript(feature: str, features: Dict, position_lookups: Dict):
 # it records unique identifiers, locations, and CDS data
 def parse_gtf(gtf_fp: Path, features_of_interest: Set) -> Dict:
     feature_data = {}
-    
+
     with open(gtf_fp, "r") as handle:
         for line in handle:
             line = line.split("\t")
             info = line[8].split(";")
             gene_id = info[0].split()[-1].strip('"')
             transcript_id = info[1].split()[-1].strip('"')
-            
-            #forward_condition = (gene_id in features_of_interest and feature_type == "genes") #or 
-                #(transcript_id in features_of_interest and feature_type == "transcripts"))
-            
-            if gene_id in features_of_interest or transcript_id in features_of_interest:#forward_condition:
+
+            # forward_condition = (gene_id in features_of_interest and feature_type == "genes") #or
+            # (transcript_id in features_of_interest and feature_type == "transcripts"))
+
+            if (
+                gene_id in features_of_interest or transcript_id in features_of_interest
+            ):  # forward_condition:
                 chromosome = line[0]
 
                 if line[2] in ["CDS", "transcript", "3UTR"]:
@@ -82,24 +85,26 @@ def parse_gtf(gtf_fp: Path, features_of_interest: Set) -> Dict:
                         frame = int(line[7])
                     else:
                         frame = None
-                    
+
                     transcript_id = info[1].split()[-1].strip('"')
-                    
+
                     if transcript_id in feature_data:
-                        feature_data[transcript_id][feature_type].append((start, end, strand, frame))
+                        feature_data[transcript_id][feature_type].append(
+                            (start, end, strand, frame)
+                        )
                     else:
                         feature_data[transcript_id] = {
-                                    "transcript": [],
-                                    "3utr": [],
-                                    "cds": [],
-                                    "gene_id": gene_id,
-                                    "chromosome": chromosome
-                                }
-                        feature_data[transcript_id][feature_type].append((start, end, strand, frame))
-    
+                            "transcript": [],
+                            "3utr": [],
+                            "cds": [],
+                            "gene_id": gene_id,
+                            "chromosome": chromosome,
+                        }
+                        feature_data[transcript_id][feature_type].append(
+                            (start, end, strand, frame)
+                        )
+
     return feature_data
-
-
 
 
 # Fundamentally a function solely for testing, but may be useful
@@ -136,11 +141,11 @@ def main():
 
     #    genes_of_interest, positions = zip(*[it.split() for it in raw_input])
     # genes_of_interest = set(["KRAS", "TP53"])
-    
+
     start = time.perf_counter()
 
     features = parse_gtf(gtf_fp, genes_of_interest)
-    
+
     position_lookups = {}
 
     for feature in features:
@@ -148,6 +153,7 @@ def main():
 
     for gene, position in zip(genes_of_interest, positions):
         print(f"{gene}\t{position}\t{position_lookups[gene][int(position)]}")
+
 
 if __name__ == "__main__":
     main()

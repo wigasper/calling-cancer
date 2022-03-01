@@ -70,4 +70,3 @@ def get_codon_map():
     }
 
     return codon_map
-

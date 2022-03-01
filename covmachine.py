@@ -8,6 +8,7 @@ from typing import Dict, Tuple
 
 import gtf_parser
 
+
 def parse_alt(alteration: str) -> Tuple[str, int, str]:
     out = None
 
@@ -31,7 +32,7 @@ def parse_alt(alteration: str) -> Tuple[str, int, str]:
 
 def get_all_alterations(alterations_fp: Path) -> Dict:
     out = {}
-    
+
     alterations = None
 
     with open(alterations_fp, "r") as handle:
@@ -39,12 +40,12 @@ def get_all_alterations(alterations_fp: Path) -> Dict:
 
     for sample_uid, alts in alterations.items():
         if alts:
-            # classif is an annotation category: 'Likely Oncogenic', 
+            # classif is an annotation category: 'Likely Oncogenic',
             # 'Inconclusive', etc
             for classif in alterations[sample_uid]:
                 for alt in alterations[sample_uid][classif]:
                     gene = alt.split("|")[0]
-                    
+
                     if gene not in out:
                         out[gene] = {}
 
@@ -53,7 +54,7 @@ def get_all_alterations(alterations_fp: Path) -> Dict:
                     if parse_res:
                         ref, position, alt = parse_res
                         alter_dict = {"ref": ref, "alt": alt}
-                        
+
                         if (
                             position in out[gene]
                             and alter_dict not in out[gene][position]
@@ -62,7 +63,8 @@ def get_all_alterations(alterations_fp: Path) -> Dict:
                         elif position not in out[gene]:
                             out[gene][position] = [alter_dict]
 
-    return out 
+    return out
+
 
 # Get the genomic positions corresponding to driver residues
 # First, get the important genes and resides from the alterations_fp
@@ -167,7 +169,9 @@ def main():
     if module == "init":
         args = parser.parse_args(sys.argv[2:])
 
-        driver_positions = get_driver_positions(Path(args.alterations_fp), Path(args.gtf))
+        driver_positions = get_driver_positions(
+            Path(args.alterations_fp), Path(args.gtf)
+        )
 
         with open(Path(args.drivers), "w") as out:
             json.dump(driver_positions, out)
@@ -183,7 +187,9 @@ def main():
 
         else:
             print("Driver positions file not found, figuring it out")
-            driver_positions = get_driver_positions(Path(args.alterations_fp), Path(args.gtf))
+            driver_positions = get_driver_positions(
+                Path(args.alterations_fp), Path(args.gtf)
+            )
             print("Got driver positions")
 
         coverages = get_coverages(driver_positions)

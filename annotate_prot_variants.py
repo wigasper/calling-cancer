@@ -260,18 +260,9 @@ def get_aa_map(codon_map: Dict) -> Dict:
 def main():
     if "-h" in sys.argv or "--help" in sys.argv:
         print(
-            "Usage:\n$ python3 annotate_prot_variants.py vcfs_dir json_output_fp OPTIONAL:oncokb_key_fp"
+            "Usage:\n$ python3 annotate_prot_variants.py vcfs_dir json_output_fp"
         )
         sys.exit()
-
-    if len(sys.argv) == 4:
-        oncokb_key_fp = Path(sys.argv[3])
-
-        global REQ_HEADERS
-        REQ_HEADERS = {
-            "application": "application/json",
-            "Authorization": f"Bearer {load_token()}",
-        }
 
     codon_map = get_codon_map()
 

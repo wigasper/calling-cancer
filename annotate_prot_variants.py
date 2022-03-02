@@ -129,6 +129,8 @@ def alteration_handler(
         results_storage_dir.mkdir()
 
     out = None
+    
+    position = str(position)
 
     if position in known_alts[gene] and alt in known_alts[gene][position]:
         out = known_alts[gene][position][alt]

@@ -17,7 +17,6 @@ logger = logging.getLogger("drivers")
 logger.setLevel(logging.DEBUG)
 
 
-# This is terrible, should have better design
 REQ_HEADERS = {
     "application": "application/json",
     "Authorization": f"Bearer {None}",
@@ -29,7 +28,7 @@ ALT_REQ_PREFIX = (
 )
 
 
-def load_token(fp: Path = Path("oncokb_key")):
+def load_token(fp: Path = Path("oncokb_key")) -> str:
     token = None
 
     with open(fp, "r") as handle:
@@ -82,7 +81,7 @@ def write_cancer_gene_list(cancer_genes: Dict, fp: Path):
             out.write(f"{it}\t{alt_ids['hugo_symbol']}\t{alt_ids['refseq']}\n")
 
 
-def load_cancer_gene_list(fp: Path):
+def load_cancer_gene_list(fp: Path) -> Dict:
     out = {}
 
     with open(fp, "r") as handle:
@@ -99,7 +98,7 @@ def load_cancer_gene_list(fp: Path):
 
 def cancer_gene_list_handler(
     cancer_gene_list_fp: Path = Path(".cancer_gene_list"), token=load_token()
-):
+) -> Dict:
     cancer_genes = None
 
     if not cancer_gene_list_fp.exists():
@@ -126,7 +125,7 @@ def alteration_handler(
     alt: str,
     known_alts: Dict,
     results_storage_dir: Path = Path("requests"),
-):
+) -> str:
     if not results_storage_dir.exists():
         results_storage_dir.mkdir()
 
@@ -160,7 +159,7 @@ def alteration_handler(
     return out
 
 
-def known_alts_handler(known_alts_fp: Path, cancer_genes: Dict):
+def known_alts_handler(known_alts_fp: Path, cancer_genes: Dict) -> Dict:
     out = None
 
     if known_alts_fp.exists():
@@ -179,7 +178,7 @@ def parse_ann_vcf(
     aa_map: Dict,
     cancer_gene_list_fp: Path = Path(".cancer_gene_list"),
     known_alts_fp: Path = Path(".memoized_alts"),
-):
+) -> Dict:
 
     cancer_genes = cancer_gene_list_handler(cancer_gene_list_fp)
     known_alts = known_alts_handler(known_alts_fp, cancer_genes)
@@ -261,7 +260,7 @@ def get_aa_map(codon_map: Dict) -> Dict:
     return aa_map
 
 
-def load_normal_counts(fp: Path):
+def load_normal_counts(fp: Path) -> List[int]:
     counts = []
 
     with open(fp, "r") as handle:
@@ -271,7 +270,7 @@ def load_normal_counts(fp: Path):
     return sorted(counts)
 
 
-def get_percentile_stats(counts: Dict, normal_counts: List[int]):
+def get_percentile_stats(counts: Dict, normal_counts: List[int]) -> Dict[str, float]:
     out = {it: None for it in counts}
 
     for sample_uid, count in counts.items():
@@ -282,7 +281,7 @@ def get_percentile_stats(counts: Dict, normal_counts: List[int]):
     return out
 
 
-def get_stats(results: Dict, normal_counts_fp: Path):
+def get_stats(results: Dict, normal_counts_fp: Path) -> Dict[str, float]:
     annotations_of_interest = ["Predicted Oncogenic", "Likely Oncogenic", "Oncogenic"]
 
     normal_counts = load_normal_counts(normal_counts_fp)

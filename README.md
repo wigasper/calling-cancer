@@ -10,8 +10,9 @@ putative driver alteration distributions.
 API key file, a file containing normal cell counts (given by `normal_counts_vec`), 
 and optionally an output file path:
 
-```bash
-usage: get_alts_stats.py [-h] -i INPUT [-o OUTPUT] [-k KEY] -n NORMAL_COUNTS
+```
+python3 get_alts_stats.py -h
+usage: get_alts_stats.py [-h] -i INPUT [-o OUTPUT] [-k KEY] [-t FLAG_THRESHOLD] -n NORMAL_COUNTS
 
 options:
   -h, --help            show this help message and exit
@@ -20,6 +21,9 @@ options:
   -o OUTPUT, --output OUTPUT
                         Output file name
   -k KEY, --key KEY     OncoKB API key: a file with a single line containing the key
+  -t FLAG_THRESHOLD, --flag-threshold FLAG_THRESHOLD
+                        Flag cells that lie greater than this percentile on the normal cell counts
+                        distribution
   -n NORMAL_COUNTS, --normal-counts NORMAL_COUNTS
                         Path to normal counts file
 ```
@@ -55,3 +59,7 @@ OncoKB API key, which can be obtained at [OncoKB](https://www.oncokb.org/apiAcce
 `annotate_prot_variants.py` will by look for this in a single-line text
 file located at `./oncokb_key`. 
 
+## Additional requirements
+
+Requires [snpsubtract](https://github.com/wigasper/snpsubtract) and a 
+VCF file with common variants, obtainable from [dbSNP](https://www.ncbi.nlm.nih.gov/snp/).

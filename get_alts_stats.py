@@ -323,6 +323,14 @@ def main():
         default="oncokb_key",
     )
     parser.add_argument(
+        "-t",
+        "--flag-threshold",
+        help=(
+            "Flag cells that lie greater than this percentile on the normal "
+            "cell counts distribution"
+        ),
+    )
+    parser.add_argument(
         "-n", "--normal-counts", help="Path to normal counts file", required=True
     )
 
@@ -351,8 +359,14 @@ def main():
     stats = get_stats(results, normal_counts_fp)
 
     with open(out_fp, "w") as out:
+        out.write("sample_uid\tpercentile\tflag\n")
         for sample_uid, pctile in stats.items():
-            out.write(f"{sample_uid}\t{pctile}\n")
+            flag = 0
+
+            if args.threshold and pctile > args.threshold:
+                flag = 1
+
+            out.write(f"{sample_uid}\t{pctile}\t{flag}\n")
 
 
 if __name__ == "__main__":

@@ -34,6 +34,12 @@ varcall_n_threads=
 # 2 processes created for each file.
 covmachine_n_threads=
 
+# Path to snpsubtract binary, if in $PATH just put 'snpsubtract'
+snpsubtract_path= 
+
+# Path to the common variants vcf, obtainable from NCBI dbSNP
+common_variants_vcf=
+
 # Path to an unzipped genome FASTA
 export genome_fasta=
 
@@ -60,7 +66,7 @@ mkdir -p fastqs
 mkdir -p temp
 mkdir -p final_variants
 mkdir -p trimmed_fastqs
-mkdir -p snpeff_out
+mkdir -p temp_snpeff_out
 mkdir -p coverage_data
 
 # Variant calling function, I do it like this so that it
@@ -82,13 +88,13 @@ varcall() {
 		rm temp/$uid.vcf
 	fi
 	
-	if [[ ! -f snpeff_out/$uid.ann.vcf ]]; then
+	if [[ ! -f temp_snpeff_out/$uid.ann.vcf ]]; then
 		step="snpeff"
 		# do snpeff
 		java -Xmx8g -jar $snpeff_path ann \
 			-noStats \
 			$snpeff_genome_target \
-			final_variants/$uid.final.vcf > snpeff_out/$uid.ann.vcf
+			final_variants/$uid.final.vcf > temp_snpeff_out/$uid.ann.vcf
 		
 	fi 
 	step="Pipeline complete"
@@ -159,9 +165,13 @@ done < $samples_tsv
 # Perform variant calling
 cat $samples_tsv | cut -f 2 | parallel -j $varcall_n_threads varcall {} 
 
+mkdir -p final_variants_subbed
+
+$snpsubtract_path temp_snpeff_out $common_variants_vcf final_variants_subbed
+
 # Annotate variants using OncoKB API
 if [[ ! -f onco_annotations.json ]]; then
-	python3 annotate_prot_variants.py snpeff_out onco_annotations.json
+	python3 annotate_prot_variants.py final_variants_subbed onco_annotations.json
 fi
 
 # Identify the genomic positions of all identified driver alterations

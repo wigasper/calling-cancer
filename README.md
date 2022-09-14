@@ -42,6 +42,14 @@ The normal counts vector was generated according to the methodology used in the
 paper, by randomly selecting cells from `GSE130473`, `GSE81547`, `GSE109822`,
 and `SRP271375`.
 
+## Data availability
+
+Raw values used to create figures are given in the `figure_data` 
+directory. Additional processed data is available in the 
+`raw_data.tar.gz` file, and the raw data used in this work
+is available from GEO under the accessions note in the
+manuscript.
+
 ## File descriptions
 * `annotate_prot_variants.py` - Annotates SnpEff output VCFs with OncoKB data
 * `codon_map.py` - Just the codon map, separate file for readability of the others
